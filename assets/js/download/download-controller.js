@@ -1,15 +1,18 @@
 angular.module('app.releases', [])
-  .config(['$routeProvider', function($routeProvider) {
+  .config(['$routeProvider', function ($routeProvider) {
     $routeProvider
       .when('/releases/:channel?/:flavor?', {
         templateUrl: 'js/download/download.html',
-        controller: 'DownloadController as vm'
+        controller: 'DownloadController as vm',
+        data: {
+          private: true
+        }
       });
   }])
   .controller('DownloadController', [
     '$scope', '$routeParams', '$route', 'PubSub', 'deviceDetector',
     'DataService',
-    function(
+    function (
       $scope, $routeParams, $route, PubSub, deviceDetector, DataService
     ) {
       var self = this;
@@ -45,7 +48,7 @@ angular.module('app.releases', [])
       self.latestReleases = null;
       self.downloadUrl = null;
 
-      self.getLatestReleases = function() {
+      self.getLatestReleases = function () {
         self.setRouteParams(
           self.channel,
           self.flavor
@@ -62,7 +65,7 @@ angular.module('app.releases', [])
       };
 
       // Watch for changes to data content and update local data accordingly.
-      var uid1 = PubSub.subscribe('data-change', function() {
+      var uid1 = PubSub.subscribe('data-change', function () {
         self.getLatestReleases();
         self.availableChannels = DataService.availableChannels;
         self.availableFlavors = DataService.availableFlavors;
@@ -72,7 +75,7 @@ angular.module('app.releases', [])
       // Update knowledge of the latest available versions.
       self.getLatestReleases();
 
-      self.download = function(asset, versionName, flavorName) {
+      self.download = function (asset, versionName, flavorName) {
         if (!asset) {
           return;
         }
@@ -83,7 +86,7 @@ angular.module('app.releases', [])
           `/download/flavor/${flavorName || flavor}/${versionName || version}/${platform}/${name}`;
       };
 
-      $scope.$on('$destroy', function() {
+      $scope.$on('$destroy', function () {
         PubSub.unsubscribe(uid1);
       });
 
